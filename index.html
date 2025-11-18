@@ -45,7 +45,7 @@
 					console.log('data:', data)
 					// 获取CertifyUrl后跳转至认证页面
 					if (data.code == 200) {
-						// window.location.href = data.data;
+						window.location.href = data.data;
 					} else {
 						statusEl.textContent = '人脸识别加载失败, 请检查您的个人信息是否正确或联系客服';
 					}
