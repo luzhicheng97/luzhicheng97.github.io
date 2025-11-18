@@ -1,142 +1,42 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
+<!DOCTYPE HTML>
+<html lang="en">
 	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>矿易达 - 一站式矿业平台</title>
-
-		<style>
-			/* 全局样式重置 */
-			* {
-				margin: 0;
-				padding: 0;
-				box-sizing: border-box;
-			}
-
-			body {
-				background: #F3F5FF;
-				height: 100vh;
-			}
-
-			.container {
-				text-align: center;
-				margin-top: -30px;
-			}
-
-			.earth-img {
-				width: 100%;
-				margin-bottom: 80px;
-			}
-
-			.logo-title {
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				margin-bottom: 10px;
-			}
-
-			.logo-img {
-				width: 32px;
-				height: 32px;
-				margin-right: 8px;
-			}
-
-			.app-title {
-				font-size: 24px;
-				font-weight: bold;
-				color: #000;
-			}
-
-			.description {
-				font-size: 14px;
-				color: #A0A0A0;
-			}
-
-			/* 下载按钮 */
-			.download-btn {
-				display: inline-block;
-				padding: 10px 48px;
-				margin: 24px 8% 40px;
-				width: 84%;
-				background-color: #007BFF;
-				color: #FFF;
-				text-decoration: none;
-				border-radius: 30px;
-				font-size: 16px;
-			}
-		</style>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>优工到店</title>
+		<!--   引入该JS，全局注入getMetaInfo方法   -->
+		<script type="text/javascript" src="https://o.alicdn.com/yd-cloudauth/cloudauth-cdn/jsvm_all.js"></script>
 	</head>
-
 	<body>
-		<div class="container">
-			<img class="earth-img" src="img/img-bg.png" />
-
-			<div class="logo-title">
-				<img class="logo-img" src="img/icon-logo.png" />
-				<h1 class="app-title">矿易达</h1>
-			</div>
-			<p class="description">连接资源 · 汇聚矿源 · 共享价值</p>
-			<a href="javascript:void(0)" id="downloadBtn" class="download-btn">
-				下载APP
-			</a>
-		</div>
-
+		<div></div>
 		<script>
-			const downloadBtn = document.getElementById('downloadBtn');
-			downloadBtn.addEventListener('click', function() {
-				const device = detectDevice();
-				const appScheme = 'kuangyid://';
-				const packageName = 'com.kpw.kuangyid';
-				if (device.isAndroid) {
-					// Android使用Intent方式
-					const intentUrl = `intent://your_host#Intent;scheme=${appScheme.split('://')[0]};package=${packageName};end`;
-					window.location.href = intentUrl;
-					setTimeout(() => {
-						if (!document.hidden) {
-							openAppStore();
-						}
-					}, 500);
-				} else if (device.isIOS) {
-					// 优先使用Universal Link
-					window.location.href = 'https://apps.apple.com/cn/app/id6745647769';
-
-				}
-			})
-
-			function detectDevice() {
-				const ua = navigator.userAgent.toLowerCase();
-				return {
-					isIOS: /iphone|ipad|ipod/.test(ua),
-					isAndroid: /android/.test(ua),
-					isHuawei: /huawei|honor/.test(ua),
-					isXiaomi: /miui|redmi|xiaomi/.test(ua),
-					isOppo: /oppo/.test(ua),
-					isVivo: /vivo/.test(ua),
-				};
+			// 在调用实人认证服务端发起认证请求时需要传入该MetaInfo值
+			let MetaInfo = window.getMetaInfo();
+			const metaInfoStr = JSON.stringify(MetaInfo);
+			const requestBody = {
+				metaInfo: metaInfoStr
 			};
-
-			function openAppStore() {
-				const device = detectDevice();
-				const packageName = 'com.kpw.kuangyid';
-				const appId = '6745647769';
-				if (device.isIOS) {
-					window.location.href = `https://apps.apple.com/cn/app/id${appId}`;
-				} else if (device.isHuawei) {
-					window.location.href = `appmarket://details?id=${packageName}`;
-				} else if (device.isXiaomi) {
-					window.location.href = `mimarket://details?id=${packageName}`;
-				} else if (device.isOppo) {
-					window.location.href = `oppomarket://details?packagename=${packageName}`;
-				} else if (device.isVivo) {
-					window.location.href = `vivomarket://details?id=${packageName}`;
-				} else if (device.isAndroid) {
-					// 国内的应用宝
-					window.location.href = `http://a.app.qq.com/o/simple.jsp?pkgname=${packageName}`;
-				} else {
-					// 未知设备跳转到应用宝
-					window.location.href = `http://a.app.qq.com/o/simple.jsp?pkgname=${packageName}`;
-				}
-			};
+			// localStorage.setItem('token',
+			// 	'eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiI3OGMxNTY1NDkwZmUyNzE4MTJhZGIwMjFhMTdkZDdlNCIsImlhdCI6MTc2MTE5NjgzNX0.njM95i3oHsxUvacAsdOoOPfic6fKgPtxqGVwUfgrHIo'
+			// )
+			// 请求认证业务接口获取CertifyUrl 
+			fetch('https://worker-api.yougongdaodian.com/flex/api/v1/ali_cloud_auth/initFaceVerify', {
+					method: 'POST',
+					headers: {
+						"Content-Type": "application/json",
+						token: 'eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiI3OGMxNTY1NDkwZmUyNzE4MTJhZGIwMjFhMTdkZDdlNCIsImlhdCI6MTc2MTE5NjgzNX0.njM95i3oHsxUvacAsdOoOPfic6fKgPtxqGVwUfgrHIo'
+					},
+					// body: `metaInfo=${encodeURIComponent(metaInfoStr)}`
+					body: JSON.stringify(requestBody)
+					// body: formData
+				})
+				.then(response => response.json())
+				.then(data => {
+					console.log('data:', data)
+					alert(data.message);
+					// 获取CertifyUrl后跳转至认证页面
+					window.location.href = data.resultObject.certifyUrl;
+				});
 		</script>
 	</body>
 </html>
