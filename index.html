@@ -3,39 +3,52 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<title>优工到店</title>
+		<title>优工到店-人脸认证</title>
 		<!--   引入该JS，全局注入getMetaInfo方法   -->
 		<script type="text/javascript" src="https://o.alicdn.com/yd-cloudauth/cloudauth-cdn/jsvm_all.js"></script>
+		<style>
+			#status {
+				padding: 200px 50px;
+				text-align: center;
+				font-size: 14px;
+			}
+		</style>
 	</head>
 	<body>
-		<div></div>
+		<div id="status"></div>
 		<script>
+			const statusEl = document.getElementById('status');
+			statusEl.textContent = '正在加载人脸识别...';
+
+			let url = new URL(window.location.href);
+			let token = url.searchParams.get('q')
+			localStorage.setItem('token', token)
+
 			// 在调用实人认证服务端发起认证请求时需要传入该MetaInfo值
 			let MetaInfo = window.getMetaInfo();
 			const metaInfoStr = JSON.stringify(MetaInfo);
 			const requestBody = {
 				metaInfo: metaInfoStr
 			};
-			// localStorage.setItem('token',
-			// 	'eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiI3OGMxNTY1NDkwZmUyNzE4MTJhZGIwMjFhMTdkZDdlNCIsImlhdCI6MTc2MTE5NjgzNX0.njM95i3oHsxUvacAsdOoOPfic6fKgPtxqGVwUfgrHIo'
-			// )
+
 			// 请求认证业务接口获取CertifyUrl 
 			fetch('https://worker-api.yougongdaodian.com/flex/api/v1/ali_cloud_auth/initFaceVerify', {
 					method: 'POST',
 					headers: {
 						"Content-Type": "application/json",
-						token: 'eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiI3OGMxNTY1NDkwZmUyNzE4MTJhZGIwMjFhMTdkZDdlNCIsImlhdCI6MTc2MTE5NjgzNX0.njM95i3oHsxUvacAsdOoOPfic6fKgPtxqGVwUfgrHIo'
+						token
 					},
-					// body: `metaInfo=${encodeURIComponent(metaInfoStr)}`
 					body: JSON.stringify(requestBody)
-					// body: formData
 				})
 				.then(response => response.json())
 				.then(data => {
 					console.log('data:', data)
-					alert(data.message);
 					// 获取CertifyUrl后跳转至认证页面
-					window.location.href = data.resultObject.certifyUrl;
+					if (data.code == 200) {
+						// window.location.href = data.data;
+					} else {
+						statusEl.textContent = '人脸识别加载失败, 请检查您的个人信息是否正确或联系客服';
+					}
 				});
 		</script>
 	</body>
