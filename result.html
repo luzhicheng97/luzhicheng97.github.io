@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="utf-8">
 		<title>优工到店-人脸认证</title>
-
+		<script src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
 		<style>
 			#status {
 				padding: 50px;
@@ -45,11 +45,7 @@
 
 		<script>
 			// 此时的window.location.href就是ReturnUrl了。
-			// 格式为：https://aliyundoc.com 或 https://aliyundoc.com/index.html 
 			let url = new URL(window.location.href);
-			// let url = new URL(
-			// 	'https://www.baidu.com/?response=%7B%22code%22%3A2006%2C%22subCode%22%3A%22Z5128%22%2C%22reason%22%3A%22NOT_SAME_PERSON%22%2C%22extInfo%22%3A%7B%22verifyCode%22%3A%22NOT_SAME_PERSON%22%2C%22certifyId%22%3A%22shaf07975bad6df5c8e8d3e012554f32%22%7D%7D'
-			// );
 			// 获取返回的认证结果数据。
 			let response = url.searchParams.get('response')
 
@@ -68,23 +64,16 @@
 				response: response
 			};
 
-			// 如果需要二次验证实人认证结果可参考下面代码。
-			// 获取CertifyId 为了避免盗链和篡改风险，请自行管理此ID和真实认证人的关系。
-			// var certifyId = JSON.parse(parms).extInfo.certifyId
-
+			// 二次验证实人认证结果。
 			fetch('https://worker-api.yougongdaodian.com/flex/api/v1/ali_cloud_auth/describeFaceVerify', {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
 						token: localStorage.getItem('token')
-						// token: 'eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiI3OGMxNTY1NDkwZmUyNzE4MTJhZGIwMjFhMTdkZDdlNCIsImlhdCI6MTc2MTE5NjgzNX0.njM95i3oHsxUvacAsdOoOPfic6fKgPtxqGVwUfgrHIo'
 					},
 					body: JSON.stringify(requestBody)
 				})
-				.then(response => {
-					console.log('res', response)
-					// return response.json()
-				})
+				.then(response => response.json())
 				.then(data => {
 					console.log('data', data)
 					// document.getElementById('detail').innerHTML = JSON.stringify(data)
@@ -92,21 +81,9 @@
 
 			// 点击按钮返回小程序指定页面
 			document.getElementById('backBtn').addEventListener('click', function() {
-				if (window.wx && wx.miniProgram) {
-					wx.miniProgram.redirectTo({
-						url: '/pages/tabbar/user/user?status=' + (responseObj.code == 1000 ? 'success' : 'fail'),
-						success: function() {
-							console.log('跳转小程序成功');
-						},
-						fail: function(err) {
-							console.error('跳转小程序失败:', err);
-							alert('返回小程序失败，请手动返回');
-						}
-					});
-				} else {
-					// 非微信环境提示
-					alert('请在小程序中打开以使用返回功能');
-				}
+				wx.miniProgram.switchTab({
+					url: '/pages/tabbar/user/user'
+				});
 			});
 		</script>
 	</body>
