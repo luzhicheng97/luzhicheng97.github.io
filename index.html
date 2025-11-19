@@ -3,26 +3,140 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<title>优工到店-人脸认证</title>
+		<title>身份信息确认</title>
 		<!--   引入该JS，全局注入getMetaInfo方法   -->
 		<script type="text/javascript" src="https://o.alicdn.com/yd-cloudauth/cloudauth-cdn/jsvm_all.js"></script>
 		<style>
-			#status {
-				padding: 200px 50px;
-				text-align: center;
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+				font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+			}
+
+			body {
+				background-color: #f5f5f5;
+				padding-top: 44px;
+				/* 适配顶部导航栏高度 */
+			}
+
+			/* 页面容器 */
+			.container {
+				padding: 30px 15px;
+			}
+
+			/* 标题 */
+			.title {
+				font-size: 20px;
+				font-weight: bold;
+				color: #333;
+				margin-bottom: 10px;
+			}
+
+			/* 说明文字 */
+			.desc {
 				font-size: 14px;
+				color: #999;
+				margin-bottom: 20px;
+				line-height: 1.5;
+			}
+
+			/* 信息卡片 */
+			.info-card {
+				background-color: #fff;
+				border-radius: 8px;
+				padding: 15px;
+				margin-bottom: 25px;
+			}
+
+			.info-item {
+				display: flex;
+				padding: 12px 0;
+				border-bottom: 1px solid #f5f5f5;
+			}
+
+			.info-item:last-child {
+				border-bottom: none;
+			}
+
+			.info-label {
+				width: 80px;
+				font-size: 15px;
+				color: #999;
+			}
+
+			.info-value {
+				font-size: 15px;
+				color: #333;
+				flex: 1;
+			}
+
+			/* 提交按钮 */
+			.submit-btn {
+				display: block;
+				width: 100%;
+				height: 45px;
+				line-height: 45px;
+				text-align: center;
+				background-color: #1677ff;
+				color: #fff;
+				border: none;
+				border-radius: 22px;
+				font-size: 16px;
+				cursor: pointer;
 			}
 		</style>
 	</head>
 	<body>
-		<div id="status"></div>
-		<script>
-			const statusEl = document.getElementById('status');
-			statusEl.textContent = '正在加载人脸识别...';
+		<!-- 页面内容容器 -->
+		<div class="container">
+			<h1 class="title">请确认身份信息</h1>
+			<p class="desc">身份证信息将用于接任务、收入提现等，与账号唯一绑定，我们会对信息进行严格保密</p>
 
+			<!-- 信息卡片 -->
+			<div class="info-card">
+				<div class="info-item">
+					<div class="info-label">证件类型</div>
+					<div class="info-value">居民身份证</div>
+				</div>
+				<div class="info-item">
+					<div class="info-label">真实姓名</div>
+					<div class="info-value" id="userName"></div>
+				</div>
+				<div class="info-item">
+					<div class="info-label">身份证号</div>
+					<div class="info-value" id="userId"></div>
+				</div>
+			</div>
+
+			<!-- 提交按钮 -->
+			<button class="submit-btn" id="submitBtn">提交</button>
+		</div>
+		<script>
 			let url = new URL(window.location.href);
 			let token = url.searchParams.get('q')
-			localStorage.setItem('token', token)
+			// localStorage.setItem('token', token)
+
+			// 获取用户信息
+			const userName = document.getElementById('userName');
+			const userId = document.getElementById('userId');
+			fetch('https://worker-api.yougongdaodian.com/flex/api/v1/worker_info/workerInfo', {
+					method: 'GET',
+					headers: {
+						"Content-Type": "application/json",
+						token: localStorage.getItem('token')
+					},
+				})
+				.then(response => response.json())
+				.then(data => {
+					console.log('data:', data)
+					if (data.code == 200) {
+						userName.textContent = data.data.name;
+						userId.textContent = data.data.idCardNumber;
+					} else {
+						alert(data.message)
+					}
+				});
 
 			// 在调用实人认证服务端发起认证请求时需要传入该MetaInfo值
 			let MetaInfo = window.getMetaInfo();
@@ -30,26 +144,28 @@
 			const requestBody = {
 				metaInfo: metaInfoStr
 			};
-
 			// 请求认证业务接口获取CertifyUrl 
-			fetch('https://worker-api.yougongdaodian.com/flex/api/v1/ali_cloud_auth/initFaceVerify', {
-					method: 'POST',
-					headers: {
-						"Content-Type": "application/json",
-						token
-					},
-					body: JSON.stringify(requestBody)
-				})
-				.then(response => response.json())
-				.then(data => {
-					console.log('data:', data)
-					// 获取CertifyUrl后跳转至认证页面
-					if (data.code == 200) {
-						window.location.href = data.data;
-					} else {
-						statusEl.textContent = '人脸识别加载失败, 请检查您的个人信息是否正确或联系客服';
-					}
-				});
+			const submitBtn = document.getElementById('submitBtn');
+			submitBtn.addEventListener('click', async () => {
+				fetch('https://worker-api.yougongdaodian.com/flex/api/v1/ali_cloud_auth/initFaceVerify', {
+						method: 'POST',
+						headers: {
+							"Content-Type": "application/json",
+							token: localStorage.getItem('token')
+						},
+						body: JSON.stringify(requestBody)
+					})
+					.then(response => response.json())
+					.then(data => {
+						console.log('data:', data)
+						// 获取CertifyUrl后跳转至认证页面
+						if (data.code == 200) {
+							window.location.href = data.data;
+						} else {
+							alert('人脸识别加载失败, 请检查您的个人信息是否正确或联系客服')
+						}
+					});
+			});
 		</script>
 	</body>
 </html>
