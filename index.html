@@ -115,7 +115,7 @@
 		<script>
 			let url = new URL(window.location.href);
 			let token = url.searchParams.get('q')
-			// localStorage.setItem('token', token)
+			localStorage.setItem('token', token)
 
 			// 获取用户信息
 			const userName = document.getElementById('userName');
@@ -124,7 +124,7 @@
 					method: 'GET',
 					headers: {
 						"Content-Type": "application/json",
-						token: localStorage.getItem('token')
+						token
 					},
 				})
 				.then(response => response.json())
@@ -151,7 +151,7 @@
 						method: 'POST',
 						headers: {
 							"Content-Type": "application/json",
-							token: localStorage.getItem('token')
+							token
 						},
 						body: JSON.stringify(requestBody)
 					})
