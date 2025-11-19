@@ -1,0 +1,90 @@
+<!DOCTYPE HTML>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>优工到店-人脸认证</title>
+		<script src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
+		<style>
+			#status {
+				padding: 50px;
+				text-align: center;
+				font-size: 44px;
+			}
+
+			#result-img {
+				display: block;
+				width: 180px;
+				height: 180px;
+				margin: 0 auto;
+				padding-top: 200px;
+			}
+
+			.btn {
+				height: 100px;
+				position: fixed;
+				bottom: 200px;
+				left: 100px;
+				right: 100px;
+				font-size: 34px;
+				background-color: #1677ff;
+				color: white;
+				border: none;
+				border-radius: 16px;
+				cursor: pointer;
+			}
+
+			.btn:active {
+				background-color: #0e65d4;
+			}
+		</style>
+	</head>
+	<body>
+		<img id="result-img" src="" alt="" />
+		<div id="status"></div>
+		<button class="btn" id="backBtn">返回小程序</button>
+
+		<script>
+			// 此时的window.location.href就是ReturnUrl了。
+			let url = new URL(window.location.href);
+			// 获取返回的认证结果数据。
+			let response = url.searchParams.get('response')
+
+			const responseObj = JSON.parse(response || "{}")
+			const statusEl = document.getElementById('status');
+			const resultImg = document.getElementById('result-img');
+			if (responseObj.code == 1000) {
+				resultImg.src = "./img/icon-success.png";
+				statusEl.textContent = '实名认证成功';
+			} else {
+				resultImg.src = "./img/icon-fail.png";
+				statusEl.textContent = '实名认证失败';
+			}
+
+			const requestBody = {
+				response: response
+			};
+
+			// 二次验证实人认证结果。
+			fetch('https://worker-api.yougongdaodian.com/flex/api/v1/ali_cloud_auth/describeFaceVerify', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						token: localStorage.getItem('token')
+					},
+					body: JSON.stringify(requestBody)
+				})
+				.then(response => response.json())
+				.then(data => {
+					console.log('data', data)
+					// document.getElementById('detail').innerHTML = JSON.stringify(data)
+				})
+
+			// 点击按钮返回小程序指定页面
+			document.getElementById('backBtn').addEventListener('click', function() {
+				wx.miniProgram.switchTab({
+					url: '/pages/tabbar/user/user'
+				});
+			});
+		</script>
+	</body>
+</html>
